@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Engine.h"
+#include "Pickable.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACoursUnrealCppCharacter
@@ -43,6 +45,10 @@ ACoursUnrealCppCharacter::ACoursUnrealCppCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	//Create SceneComponent
+	ObjectPosition = CreateDefaultSubobject<USceneComponent>(TEXT("ObjectPos"));
+	ObjectPosition->SetupAttachment(RootComponent);
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -56,6 +62,7 @@ void ACoursUnrealCppCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &ACoursUnrealCppCharacter::Pick);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACoursUnrealCppCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACoursUnrealCppCharacter::MoveRight);
@@ -130,5 +137,30 @@ void ACoursUnrealCppCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+	}
+}
+
+void ACoursUnrealCppCharacter::Pick()
+{
+	FVector start = GetActorLocation();
+	FVector end = (FollowCamera->GetForwardVector() * PickDistance) + start;
+	FHitResult hit;
+	if (!GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility))
+		return;
+	DrawDebugLine(GetWorld(), start, end, FColor(255, 0, 0), true);
+	if (CurrentObject == nullptr)
+	{
+		APickable* pick = Cast<APickable>(hit.Actor.Get());
+		if (pick != nullptr) {
+			CurrentObject = pick;
+			pick->SetActorLocation(ObjectPosition->GetComponentLocation());
+			pick->AttachToComponent(ObjectPosition,FAttachmentTransformRules(EAttachmentRule::SnapToTarget,true));
+		}
+	}
+	else {
+		CurrentObject->DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+		CurrentObject->SetActorLocation(hit.Location,true);
+		CurrentObject->SetActorRotation(FRotator(0));
+		CurrentObject = nullptr;
 	}
 }

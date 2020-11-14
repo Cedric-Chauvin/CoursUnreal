@@ -18,6 +18,17 @@ class ACoursUnrealCppCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	//Carring Object position
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* ObjectPosition;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pick, meta = (AllowPrivateAccess = "true"))
+	class APickable* CurrentObject;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pick, meta = (AllowPrivateAccess = "true"))
+	float PickDistance;
+
 public:
 	ACoursUnrealCppCharacter();
 
@@ -39,6 +50,8 @@ protected:
 
 	/** Called for side to side input */
 	void MoveRight(float Value);
+
+	void Pick();
 
 	/** 
 	 * Called via input to turn at a given rate. 
