@@ -26,6 +26,15 @@ class ACoursUnrealCppCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pick, meta = (AllowPrivateAccess = "true"))
 	class APickable* CurrentObject;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	float SideAxis;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	float ForwardAxis;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pick, meta = (AllowPrivateAccess = "true"))
+	bool IsAiming = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pick, meta = (AllowPrivateAccess = "true"))
 	float PickDistance;
 
@@ -52,7 +61,9 @@ protected:
 	void MoveRight(float Value);
 
 	void Pick();
-	void Fire();
+	void CrouchUnCrouch();
+	void AimTrue();
+	void AimFalse();
 
 	/** 
 	 * Called via input to turn at a given rate. 

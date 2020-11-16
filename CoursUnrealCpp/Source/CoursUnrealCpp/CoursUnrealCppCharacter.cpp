@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Engine.h"
 #include "Pickable.h"
+#include "Components/SkeletalMeshComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACoursUnrealCppCharacter
@@ -48,7 +49,7 @@ ACoursUnrealCppCharacter::ACoursUnrealCppCharacter()
 	//Create SceneComponent
 	ObjectPosition = CreateDefaultSubobject<USceneComponent>(TEXT("ObjectPos"));
 	ObjectPosition->SetupAttachment(RootComponent);
-
+	
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -63,7 +64,9 @@ void ACoursUnrealCppCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &ACoursUnrealCppCharacter::Pick);
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACoursUnrealCppCharacter::Fire);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACoursUnrealCppCharacter::CrouchUnCrouch);
+	PlayerInputComponent->BindAction("AIM", IE_Pressed, this, &ACoursUnrealCppCharacter::AimTrue);
+	PlayerInputComponent->BindAction("AIM", IE_Released, this, &ACoursUnrealCppCharacter::AimFalse);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACoursUnrealCppCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACoursUnrealCppCharacter::MoveRight);
@@ -104,6 +107,11 @@ void ACoursUnrealCppCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	if (IsAiming) {
+		FRotator rotation = FRotator(0);
+		rotation.Yaw = Controller->GetControlRotation().Yaw;
+		SetActorRotation(rotation);
+	}
 }
 
 void ACoursUnrealCppCharacter::LookUpAtRate(float Rate)
@@ -114,6 +122,7 @@ void ACoursUnrealCppCharacter::LookUpAtRate(float Rate)
 
 void ACoursUnrealCppCharacter::MoveForward(float Value)
 {
+	ForwardAxis = Value;
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -128,6 +137,7 @@ void ACoursUnrealCppCharacter::MoveForward(float Value)
 
 void ACoursUnrealCppCharacter::MoveRight(float Value)
 {
+	SideAxis = Value;
 	if ( (Controller != NULL) && (Value != 0.0f) )
 	{
 		// find out which way is right
@@ -143,6 +153,11 @@ void ACoursUnrealCppCharacter::MoveRight(float Value)
 
 void ACoursUnrealCppCharacter::Pick()
 {
+	if (IsAiming) {
+		if(CurrentObject)
+			CurrentObject->UseObject(this);
+		return;
+	}
 	FVector start = GetActorLocation();
 	FVector end = (FollowCamera->GetForwardVector() * PickDistance) + start;
 	FHitResult hit;
@@ -156,7 +171,6 @@ void ACoursUnrealCppCharacter::Pick()
 			CurrentObject = pick;
 			pick->SetActorLocation(ObjectPosition->GetComponentLocation());
 			pick->AttachToComponent(ObjectPosition,FAttachmentTransformRules(EAttachmentRule::SnapToTarget,true));
-			pick->SetActorEnableCollision(false);
 		}
 	}
 	else {
@@ -164,12 +178,29 @@ void ACoursUnrealCppCharacter::Pick()
 		CurrentObject->SetActorLocation(hit.Location,true);
 		CurrentObject->SetActorRotation(FRotator(0));
 		CurrentObject = nullptr;
-		CurrentObject->SetActorEnableCollision(true);
 	}
 }
 
-void ACoursUnrealCppCharacter::Fire()
+void ACoursUnrealCppCharacter::CrouchUnCrouch()
 {
-	if (CurrentObject)
-		CurrentObject->UseObject(this);
+	if (bIsCrouched)
+		UnCrouch();
+	else
+		Crouch();
+}
+
+void ACoursUnrealCppCharacter::AimTrue()
+{
+	IsAiming = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->MaxWalkSpeed /= 4;
+	if (bIsCrouched)
+		UnCrouch();
+}
+
+void ACoursUnrealCppCharacter::AimFalse()
+{
+	IsAiming = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->MaxWalkSpeed *= 4;
 }

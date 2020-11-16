@@ -25,8 +25,6 @@ void UKillPlayer::Kill(class AActor* SelfActor, class AActor* OtherActor, FVecto
 	}
 }
 
-
-
 void UKillPlayer::DestroyParticle()
 {
 	GetOwner()->GetWorldTimerManager().ClearTimer(timers[0]);
