@@ -13,6 +13,8 @@ class ACoursUnrealCppGameMode : public AGameModeBase
 
 public:
 	ACoursUnrealCppGameMode();
+
+	void RespawnPlayer();
 };
 
 

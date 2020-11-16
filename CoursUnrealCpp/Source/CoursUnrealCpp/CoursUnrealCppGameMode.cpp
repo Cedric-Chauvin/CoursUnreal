@@ -13,3 +13,8 @@ ACoursUnrealCppGameMode::ACoursUnrealCppGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 }
+
+void ACoursUnrealCppGameMode::RespawnPlayer()
+{
+	RestartPlayer(GetWorld()->GetFirstPlayerController());
+}
