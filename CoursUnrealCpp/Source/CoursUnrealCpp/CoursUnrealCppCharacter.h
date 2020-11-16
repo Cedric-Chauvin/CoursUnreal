@@ -52,6 +52,7 @@ protected:
 	void MoveRight(float Value);
 
 	void Pick();
+	void Fire();
 
 	/** 
 	 * Called via input to turn at a given rate. 

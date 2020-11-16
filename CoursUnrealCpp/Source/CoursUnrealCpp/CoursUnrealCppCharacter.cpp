@@ -63,6 +63,7 @@ void ACoursUnrealCppCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &ACoursUnrealCppCharacter::Pick);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACoursUnrealCppCharacter::Fire);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACoursUnrealCppCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACoursUnrealCppCharacter::MoveRight);
@@ -155,6 +156,7 @@ void ACoursUnrealCppCharacter::Pick()
 			CurrentObject = pick;
 			pick->SetActorLocation(ObjectPosition->GetComponentLocation());
 			pick->AttachToComponent(ObjectPosition,FAttachmentTransformRules(EAttachmentRule::SnapToTarget,true));
+			pick->SetActorEnableCollision(false);
 		}
 	}
 	else {
@@ -162,5 +164,12 @@ void ACoursUnrealCppCharacter::Pick()
 		CurrentObject->SetActorLocation(hit.Location,true);
 		CurrentObject->SetActorRotation(FRotator(0));
 		CurrentObject = nullptr;
+		CurrentObject->SetActorEnableCollision(true);
 	}
+}
+
+void ACoursUnrealCppCharacter::Fire()
+{
+	if (CurrentObject)
+		CurrentObject->UseObject(this);
 }

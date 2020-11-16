@@ -2,6 +2,8 @@
 
 
 #include "Pickable.h"
+#include "PaintProjectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 APickable::APickable()
@@ -12,6 +14,13 @@ APickable::APickable()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	StaticMeshComponent->SetupAttachment(RootComponent);
+}
+
+void APickable::UseObject(AActor* user)
+{
+	APaintProjectile* projectile = GetWorld()->SpawnActor<APaintProjectile>(user->GetTransform().GetLocation(), FRotator());
+	projectile->ProjectileMovement->Velocity = user->GetActorForwardVector()*1000;
+	projectile->SetActorRotation(FRotator(0));
 }
 
 // Called when the game starts or when spawned
