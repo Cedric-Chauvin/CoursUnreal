@@ -3,6 +3,7 @@
 #include "CoursUnrealCppGameMode.h"
 #include "CoursUnrealCppCharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Blueprint/UserWidget.h"
 
 ACoursUnrealCppGameMode::ACoursUnrealCppGameMode()
 {
@@ -17,4 +18,34 @@ ACoursUnrealCppGameMode::ACoursUnrealCppGameMode()
 void ACoursUnrealCppGameMode::RespawnPlayer()
 {
 	RestartPlayer(GetWorld()->GetFirstPlayerController());
+}
+
+void ACoursUnrealCppGameMode::GamePause()
+{
+	if (!GetWorld()->GetFirstPlayerController()->IsPaused())
+	{
+		widget->SetVisibility(ESlateVisibility::Visible);
+		GetWorld()->GetFirstPlayerController()->SetPause(true);
+		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameAndUI());
+		GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+	}
+	else
+	{
+		widget->SetVisibility(ESlateVisibility::Hidden);
+		GetWorld()->GetFirstPlayerController()->SetPause(false);
+		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameOnly());
+		GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
+	}
+}
+
+void ACoursUnrealCppGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (WidgetClass)
+	{
+		widget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), WidgetClass);
+		widget->AddToViewport();
+		widget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }

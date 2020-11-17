@@ -11,6 +11,7 @@
 #include "Engine.h"
 #include "Pickable.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "CoursUnrealCppGameMode.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACoursUnrealCppCharacter
@@ -67,6 +68,7 @@ void ACoursUnrealCppCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACoursUnrealCppCharacter::CrouchUnCrouch);
 	PlayerInputComponent->BindAction("AIM", IE_Pressed, this, &ACoursUnrealCppCharacter::AimTrue);
 	PlayerInputComponent->BindAction("AIM", IE_Released, this, &ACoursUnrealCppCharacter::AimFalse);
+	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ACoursUnrealCppCharacter::Pause).bExecuteWhenPaused = true;
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACoursUnrealCppCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACoursUnrealCppCharacter::MoveRight);
@@ -203,4 +205,11 @@ void ACoursUnrealCppCharacter::AimFalse()
 	IsAiming = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed *= 4;
+}
+
+void ACoursUnrealCppCharacter::Pause()
+{
+	ACoursUnrealCppGameMode* gameMode = Cast<ACoursUnrealCppGameMode>(GetWorld()->GetAuthGameMode());
+	if(gameMode)
+		gameMode->GamePause();
 }

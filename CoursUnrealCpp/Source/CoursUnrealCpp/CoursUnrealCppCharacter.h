@@ -38,6 +38,7 @@ class ACoursUnrealCppCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pick, meta = (AllowPrivateAccess = "true"))
 	float PickDistance;
 
+
 public:
 	ACoursUnrealCppCharacter();
 
@@ -64,6 +65,7 @@ protected:
 	void CrouchUnCrouch();
 	void AimTrue();
 	void AimFalse();
+	void Pause();
 
 	/** 
 	 * Called via input to turn at a given rate. 

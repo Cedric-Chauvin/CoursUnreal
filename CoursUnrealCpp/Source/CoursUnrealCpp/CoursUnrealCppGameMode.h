@@ -11,10 +11,20 @@ class ACoursUnrealCppGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Menu, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> WidgetClass;
+
+	UUserWidget* widget;
+
 public:
 	ACoursUnrealCppGameMode();
 
 	void RespawnPlayer();
+
+	UFUNCTION(BlueprintCallable)
+	void GamePause();
+
+	void BeginPlay() override;
 };
 
 
