@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "SaveTemplate.h" 
 #include "CoursUnrealCppGameMode.generated.h"
 
 UCLASS(minimalapi)
@@ -25,6 +26,9 @@ public:
 	void GamePause();
 
 	void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+		USaveTemplate* SetupSave();
 };
 
 

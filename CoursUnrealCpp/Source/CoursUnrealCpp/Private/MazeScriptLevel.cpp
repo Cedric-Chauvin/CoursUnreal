@@ -4,9 +4,28 @@
 #include "MazeScriptLevel.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/LevelStreaming.h"
+#include "GameFramework/SaveGame.h"
+#include "GameFramework/Character.h" 
 
 AMazeScriptLevel::AMazeScriptLevel() {
 	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AMazeScriptLevel::BeginPlay()
+{
+	Super::BeginPlay();
+	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("slot0",0);
+	if (tempSave) {
+		USaveTemplate* save = Cast<USaveTemplate>(tempSave);
+		if (save) {
+			UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(save->playerTransform);
+			saveIndex = save->saveIndex;
+			return;
+		}
+	}
+	AddOrRemoveCompt(FName("Spawn"), true);
+	AddOrRemoveCompt(FName("Corridor1"), true);
+
 }
 
 void AMazeScriptLevel::Tick(float DeltaTime)
@@ -43,4 +62,13 @@ void AMazeScriptLevel::AddOrRemoveCompt(FName lvlName, bool add)
 			levelToLoad.Remove(lvlName);
 		levelsCount.Remove(lvlName);
 	}
+}
+
+USaveTemplate* AMazeScriptLevel::SetupSave()
+{
+	USaveTemplate* save = Cast<USaveTemplate>(UGameplayStatics::CreateSaveGameObject(USaveTemplate::StaticClass()));
+	save->playerTransform = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetTransform();
+	save->levelsState = levelsCount;
+	save->saveIndex = saveIndex;
+	return save;
 }

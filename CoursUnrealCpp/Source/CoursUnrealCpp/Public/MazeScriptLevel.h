@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SaveTemplate.h"
 #include "Engine/LevelScriptActor.h"
 #include "MazeScriptLevel.generated.h"
 
@@ -17,12 +18,15 @@ class COURSUNREALCPP_API AMazeScriptLevel : public ALevelScriptActor
 	TMap<FName, int> levelsCount;
 	TArray<FName> levelToLoad;
 	TArray<FName> levelToUnload;
+	int saveIndex;
 	FLatentActionInfo info;
 
 
 
 public :
 	AMazeScriptLevel();
-	void AddOrRemoveCompt(FName lvlName,bool add);
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	void AddOrRemoveCompt(FName lvlName,bool add);
+	USaveTemplate* SetupSave();
 };

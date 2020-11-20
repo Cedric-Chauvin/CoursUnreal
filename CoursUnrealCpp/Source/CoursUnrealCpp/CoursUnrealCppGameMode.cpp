@@ -4,6 +4,7 @@
 #include "CoursUnrealCppCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
+#include "MazeScriptLevel.h"
 
 ACoursUnrealCppGameMode::ACoursUnrealCppGameMode()
 {
@@ -48,4 +49,10 @@ void ACoursUnrealCppGameMode::BeginPlay()
 		widget->AddToViewport();
 		widget->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
+
+USaveTemplate* ACoursUnrealCppGameMode::SetupSave()
+{
+	AMazeScriptLevel* level = Cast< AMazeScriptLevel>(GetLevel()->GetLevelScriptActor());
+	return level->SetupSave();
 }
