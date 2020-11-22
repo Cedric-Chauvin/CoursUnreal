@@ -40,6 +40,7 @@ void ALevelTriggerActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAc
 	{
 		levelManager->AddOrRemoveCompt(var, true);
 	}
+	levelManager->ChangeCurrentLVL(lvlName);
 }
 
 void ALevelTriggerActor::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

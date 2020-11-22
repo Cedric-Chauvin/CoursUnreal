@@ -19,12 +19,11 @@ public :
 	FTransform playerTransform;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Save)
-	TMap<FName, int> levelsState;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Save)
 	FDateTime saveTime;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Save)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Save)
 		int saveIndex;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Save)
+		FName CurrentLevel;
 };

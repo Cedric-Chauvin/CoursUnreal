@@ -18,6 +18,7 @@ class COURSUNREALCPP_API AMazeScriptLevel : public ALevelScriptActor
 	TMap<FName, int> levelsCount;
 	TArray<FName> levelToLoad;
 	TArray<FName> levelToUnload;
+	FName currentLvl;
 	int saveIndex;
 	FLatentActionInfo info;
 
@@ -28,5 +29,6 @@ public :
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	void AddOrRemoveCompt(FName lvlName,bool add);
+	void ChangeCurrentLVL(FName lvl);
 	USaveTemplate* SetupSave();
 };

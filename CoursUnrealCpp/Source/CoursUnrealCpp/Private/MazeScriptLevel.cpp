@@ -6,6 +6,7 @@
 #include "Engine/LevelStreaming.h"
 #include "GameFramework/SaveGame.h"
 #include "GameFramework/Character.h" 
+#include "..\Public\MazeScriptLevel.h"
 
 AMazeScriptLevel::AMazeScriptLevel() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -14,18 +15,18 @@ AMazeScriptLevel::AMazeScriptLevel() {
 void AMazeScriptLevel::BeginPlay()
 {
 	Super::BeginPlay();
-	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("slot0",0);
+	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("Slot0",0);
 	if (tempSave) {
 		USaveTemplate* save = Cast<USaveTemplate>(tempSave);
-		if (save) {
+		saveIndex = save->saveIndex;
+		if (save->playerTransform.GetLocation() != FVector(0))
 			UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(save->playerTransform);
-			saveIndex = save->saveIndex;
-			return;
+		if (save->CurrentLevel.IsNone() || save->CurrentLevel == FName("Spawn")) {
+			currentLvl = FName("Spawn");
+			AddOrRemoveCompt(FName("Spawn"), true);
+			AddOrRemoveCompt(FName("Corridor1"), true);
 		}
 	}
-	AddOrRemoveCompt(FName("Spawn"), true);
-	AddOrRemoveCompt(FName("Corridor1"), true);
-
 }
 
 void AMazeScriptLevel::Tick(float DeltaTime)
@@ -64,11 +65,20 @@ void AMazeScriptLevel::AddOrRemoveCompt(FName lvlName, bool add)
 	}
 }
 
+void AMazeScriptLevel::ChangeCurrentLVL(FName lvl)
+{
+	currentLvl = lvl;
+}
+
 USaveTemplate* AMazeScriptLevel::SetupSave()
 {
-	USaveTemplate* save = Cast<USaveTemplate>(UGameplayStatics::CreateSaveGameObject(USaveTemplate::StaticClass()));
+	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("Slot0", 0);
+	if (!tempSave) 
+		tempSave = UGameplayStatics::CreateSaveGameObject(USaveTemplate::StaticClass());
+	USaveTemplate* save = Cast<USaveTemplate>(tempSave);
 	save->playerTransform = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetTransform();
-	save->levelsState = levelsCount;
+	save->saveTime = FDateTime::Now();
+	save->CurrentLevel = currentLvl;
 	save->saveIndex = saveIndex;
 	return save;
 }
