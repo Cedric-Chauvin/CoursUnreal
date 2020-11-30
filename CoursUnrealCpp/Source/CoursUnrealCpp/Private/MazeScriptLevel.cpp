@@ -15,18 +15,7 @@ AMazeScriptLevel::AMazeScriptLevel() {
 void AMazeScriptLevel::BeginPlay()
 {
 	Super::BeginPlay();
-	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("Slot0",0);
-	if (tempSave) {
-		USaveTemplate* save = Cast<USaveTemplate>(tempSave);
-		saveIndex = save->saveIndex;
-		if (save->playerTransform.GetLocation() != FVector(0))
-			UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(save->playerTransform);
-		if (save->CurrentLevel.IsNone() || save->CurrentLevel == FName("Spawn")) {
-			currentLvl = FName("Spawn");
-			AddOrRemoveCompt(FName("Spawn"), true);
-			AddOrRemoveCompt(FName("Corridor1"), true);
-		}
-	}
+	LoadSave();
 }
 
 void AMazeScriptLevel::Tick(float DeltaTime)
@@ -81,4 +70,20 @@ USaveTemplate* AMazeScriptLevel::SetupSave()
 	save->CurrentLevel = currentLvl;
 	save->saveIndex = saveIndex;
 	return save;
+}
+
+void AMazeScriptLevel::LoadSave()
+{
+	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("Slot0", 0);
+	if (tempSave) {
+		USaveTemplate* save = Cast<USaveTemplate>(tempSave);
+		saveIndex = save->saveIndex;
+		if (save->playerTransform.GetLocation() != FVector(0))
+			UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(save->playerTransform);
+		if (save->CurrentLevel.IsNone() || save->CurrentLevel == FName("Spawn")) {
+			currentLvl = FName("Spawn");
+			AddOrRemoveCompt(FName("Spawn"), true);
+			AddOrRemoveCompt(FName("Corridor1"), true);
+		}
+	}
 }

@@ -19,6 +19,9 @@ ACoursUnrealCppGameMode::ACoursUnrealCppGameMode()
 void ACoursUnrealCppGameMode::RespawnPlayer()
 {
 	RestartPlayer(GetWorld()->GetFirstPlayerController());
+	AMazeScriptLevel* level = Cast< AMazeScriptLevel>(GetLevel()->GetLevelScriptActor());
+	if(level)
+		level->LoadSave();
 }
 
 void ACoursUnrealCppGameMode::GamePause()
