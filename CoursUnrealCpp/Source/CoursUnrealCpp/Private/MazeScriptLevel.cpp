@@ -7,6 +7,22 @@
 #include "GameFramework/SaveGame.h"
 #include "GameFramework/Character.h" 
 #include "..\Public\MazeScriptLevel.h"
+#include "Engine/DataTable.h"
+#include "TimerManager.h"
+#include "ItemActor.h"
+
+void AMazeScriptLevel::SpawnItem()
+{
+	if (spawnLocations.Num() == 0)
+		return;
+	TArray<FName> names = Table->GetRowNames();
+	int random = FMath::RandRange(0, names.Num() - 1);
+	FString context = "SpawnItem";
+	FItemData* data = Table->FindRow<FItemData>(names[random], context);
+	random = FMath::RandRange(0, spawnLocations.Num() - 1);
+	AItemActor* item = GetWorld()->SpawnActor<AItemActor>(spawnActor, spawnLocations[random], FRotator(0));
+	item->Data = data;
+}
 
 AMazeScriptLevel::AMazeScriptLevel() {
 	PrimaryActorTick.bCanEverTick = true;
@@ -16,6 +32,8 @@ void AMazeScriptLevel::BeginPlay()
 {
 	Super::BeginPlay();
 	LoadSave();
+	timer = FTimerHandle();
+	GetWorldTimerManager().SetTimer(timer, this, &AMazeScriptLevel::SpawnItem, 10, true, 10);
 }
 
 void AMazeScriptLevel::Tick(float DeltaTime)
@@ -74,6 +92,13 @@ USaveTemplate* AMazeScriptLevel::SetupSave()
 
 void AMazeScriptLevel::LoadSave()
 {
+	if(!UGameplayStatics::DoesSaveGameExist("Slot0", 0))
+	{ 
+		currentLvl = FName("Spawn");
+		AddOrRemoveCompt(FName("Spawn"), true);
+		AddOrRemoveCompt(FName("Corridor1"), true);
+		return;
+	}
 	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("Slot0", 0);
 	if (tempSave) {
 		USaveTemplate* save = Cast<USaveTemplate>(tempSave);
@@ -86,4 +111,9 @@ void AMazeScriptLevel::LoadSave()
 			AddOrRemoveCompt(FName("Corridor1"), true);
 		}
 	}
+}
+
+void AMazeScriptLevel::AddItemSpawn(FVector location)
+{
+	spawnLocations.Add(location);
 }

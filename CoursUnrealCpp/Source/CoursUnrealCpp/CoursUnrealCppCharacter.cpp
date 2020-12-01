@@ -12,6 +12,7 @@
 #include "Pickable.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CoursUnrealCppGameMode.h"
+#include "ItemActor.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACoursUnrealCppCharacter
@@ -69,6 +70,7 @@ void ACoursUnrealCppCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("AIM", IE_Pressed, this, &ACoursUnrealCppCharacter::AimTrue);
 	PlayerInputComponent->BindAction("AIM", IE_Released, this, &ACoursUnrealCppCharacter::AimFalse);
 	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ACoursUnrealCppCharacter::Pause).bExecuteWhenPaused = true;
+	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &ACoursUnrealCppCharacter::OpenInventory).bExecuteWhenPaused = true;;
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACoursUnrealCppCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACoursUnrealCppCharacter::MoveRight);
@@ -89,6 +91,14 @@ void ACoursUnrealCppCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ACoursUnrealCppCharacter::OnResetVR);
 }
 
+
+bool ACoursUnrealCppCharacter::AddItem(FItemData* data)
+{
+	if (Items.Num() > 15)
+		return false;
+	Items.Add(data);
+	return true;
+}
 
 void ACoursUnrealCppCharacter::OnResetVR()
 {
@@ -212,4 +222,17 @@ void ACoursUnrealCppCharacter::Pause()
 	ACoursUnrealCppGameMode* gameMode = Cast<ACoursUnrealCppGameMode>(GetWorld()->GetAuthGameMode());
 	if(gameMode)
 		gameMode->GamePause();
+}
+
+void ACoursUnrealCppCharacter::OpenInventory()
+{
+	ACoursUnrealCppGameMode* gameMode = Cast<ACoursUnrealCppGameMode>(GetWorld()->GetAuthGameMode());
+	if (!gameMode)
+		return;
+	TArray<UTexture2D*> textures;
+	for (FItemData* item : Items)
+	{
+		textures.Add(item->Sprite);
+	}
+	gameMode->OpenInventory(textures);
 }

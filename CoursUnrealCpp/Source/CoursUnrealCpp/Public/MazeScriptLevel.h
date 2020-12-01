@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SaveTemplate.h"
+#include "Math/Vector.h"
 #include "Engine/LevelScriptActor.h"
 #include "MazeScriptLevel.generated.h"
 
@@ -22,7 +23,14 @@ class COURSUNREALCPP_API AMazeScriptLevel : public ALevelScriptActor
 	int saveIndex;
 	FLatentActionInfo info;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ItemSpawn, meta = (AllowPrivateAccess = "true"))
+		class UDataTable* Table;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ItemSpawn, meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class AItemActor> spawnActor;
+	FTimerHandle timer;
+	TArray<FVector> spawnLocations;
 
+	void SpawnItem();
 
 public :
 	AMazeScriptLevel();
@@ -30,6 +38,9 @@ public :
 	virtual void Tick(float DeltaTime) override;
 	void AddOrRemoveCompt(FName lvlName,bool add);
 	void ChangeCurrentLVL(FName lvl);
+
 	USaveTemplate* SetupSave();
 	void LoadSave();
+
+	void AddItemSpawn(FVector location);
 };

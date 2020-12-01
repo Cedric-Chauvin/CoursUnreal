@@ -14,8 +14,11 @@ class ACoursUnrealCppGameMode : public AGameModeBase
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Menu, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> WidgetClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Menu, meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class UInventory> InventoryClass;
 
 	UUserWidget* widget;
+	class UInventory* inventoryWidget;
 
 public:
 	ACoursUnrealCppGameMode();
@@ -24,6 +27,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void GamePause();
+
+	void OpenInventory(TArray<UTexture2D*> Textures);
 
 	void BeginPlay() override;
 

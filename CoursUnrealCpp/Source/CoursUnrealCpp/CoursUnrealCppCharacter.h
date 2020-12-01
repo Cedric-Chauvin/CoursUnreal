@@ -38,6 +38,7 @@ class ACoursUnrealCppCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pick, meta = (AllowPrivateAccess = "true"))
 	float PickDistance;
 
+	TArray<struct FItemData*> Items;
 
 public:
 	ACoursUnrealCppCharacter();
@@ -49,6 +50,8 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
+
+	bool AddItem(struct FItemData* data);
 
 protected:
 
@@ -66,6 +69,7 @@ protected:
 	void AimTrue();
 	void AimFalse();
 	void Pause();
+	void OpenInventory();
 
 	/** 
 	 * Called via input to turn at a given rate. 

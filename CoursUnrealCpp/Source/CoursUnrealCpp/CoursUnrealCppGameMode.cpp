@@ -5,6 +5,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
 #include "MazeScriptLevel.h"
+#include "Inventory.h"
 
 ACoursUnrealCppGameMode::ACoursUnrealCppGameMode()
 {
@@ -42,6 +43,25 @@ void ACoursUnrealCppGameMode::GamePause()
 	}
 }
 
+void ACoursUnrealCppGameMode::OpenInventory(TArray<UTexture2D*> Textures)
+{
+	if (!GetWorld()->GetFirstPlayerController()->IsPaused())
+	{
+		inventoryWidget->SetVisibility(ESlateVisibility::Visible);
+		GetWorld()->GetFirstPlayerController()->SetPause(true);
+		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameAndUI());
+		GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+		inventoryWidget->UpdateInventoryWidget(Textures);
+	}
+	else
+	{
+		inventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+		GetWorld()->GetFirstPlayerController()->SetPause(false);
+		GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeGameOnly());
+		GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
+	}
+}
+
 void ACoursUnrealCppGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -51,6 +71,12 @@ void ACoursUnrealCppGameMode::BeginPlay()
 		widget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), WidgetClass);
 		widget->AddToViewport();
 		widget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (InventoryClass)
+	{
+		inventoryWidget = CreateWidget<UInventory>(GetWorld()->GetFirstPlayerController(), InventoryClass);
+		inventoryWidget->AddToViewport();
+		inventoryWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
