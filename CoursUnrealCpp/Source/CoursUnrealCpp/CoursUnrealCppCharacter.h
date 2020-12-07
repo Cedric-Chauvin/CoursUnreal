@@ -32,11 +32,16 @@ class ACoursUnrealCppCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	float ForwardAxis;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* Montage;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Pick, meta = (AllowPrivateAccess = "true"))
 	bool IsAiming = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pick, meta = (AllowPrivateAccess = "true"))
 	float PickDistance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, meta = (AllowPrivateAccess = "true"))
+		float AttackDamage;
 
 	TArray<struct FItemData*> Items;
 
@@ -52,6 +57,7 @@ public:
 	float BaseLookUpRate;
 
 	bool AddItem(struct FItemData* data);
+	virtual void BeginPlay() override;
 
 protected:
 
@@ -70,6 +76,10 @@ protected:
 	void AimFalse();
 	void Pause();
 	void OpenInventory();
+	void Punch();
+
+	UFUNCTION()
+	void NotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& paylod);
 
 	/** 
 	 * Called via input to turn at a given rate. 

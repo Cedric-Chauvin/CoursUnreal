@@ -13,6 +13,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "CoursUnrealCppGameMode.h"
 #include "ItemActor.h"
+#include "Animation/AnimInstance.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ACoursUnrealCppCharacter
@@ -65,12 +67,12 @@ void ACoursUnrealCppCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("Pick", IE_Pressed, this, &ACoursUnrealCppCharacter::Pick);
+	PlayerInputComponent->BindAction("Punch", IE_Pressed, this, &ACoursUnrealCppCharacter::Punch);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACoursUnrealCppCharacter::CrouchUnCrouch);
 	PlayerInputComponent->BindAction("AIM", IE_Pressed, this, &ACoursUnrealCppCharacter::AimTrue);
 	PlayerInputComponent->BindAction("AIM", IE_Released, this, &ACoursUnrealCppCharacter::AimFalse);
 	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &ACoursUnrealCppCharacter::Pause).bExecuteWhenPaused = true;
-	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &ACoursUnrealCppCharacter::OpenInventory).bExecuteWhenPaused = true;;
+	PlayerInputComponent->BindAction("Inventory", IE_Pressed, this, &ACoursUnrealCppCharacter::OpenInventory).bExecuteWhenPaused = true;
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACoursUnrealCppCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACoursUnrealCppCharacter::MoveRight);
@@ -98,6 +100,12 @@ bool ACoursUnrealCppCharacter::AddItem(FItemData* data)
 		return false;
 	Items.Add(data);
 	return true;
+}
+
+void ACoursUnrealCppCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	GetMesh()->GetAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &ACoursUnrealCppCharacter::NotifyBegin);
 }
 
 void ACoursUnrealCppCharacter::OnResetVR()
@@ -235,4 +243,22 @@ void ACoursUnrealCppCharacter::OpenInventory()
 		textures.Add(item->Sprite);
 	}
 	gameMode->OpenInventory(textures);
+}
+
+void ACoursUnrealCppCharacter::Punch()
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(Montage);
+}
+
+void ACoursUnrealCppCharacter::NotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& paylod) {
+	FVector handLocation = GetMesh()->GetSocketLocation(FName("Punch"));
+	TArray<TEnumAsByte<EObjectTypeQuery>> myArray;
+	myArray.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+	TArray<AActor*> actorToIgnore;
+	actorToIgnore.Add(this);
+	TArray<AActor*> OverlapedActors;
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), handLocation, 50, myArray, nullptr, actorToIgnore, OverlapedActors);
+	for (AActor* actor : OverlapedActors) {
+		actor->TakeDamage(AttackDamage, FDamageEvent(), Controller, this);
+	}
 }
