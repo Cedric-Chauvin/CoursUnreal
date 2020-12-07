@@ -33,7 +33,7 @@ public:
 	void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-		USaveTemplate* SetupSave();
+		void Save();
 };
 
 

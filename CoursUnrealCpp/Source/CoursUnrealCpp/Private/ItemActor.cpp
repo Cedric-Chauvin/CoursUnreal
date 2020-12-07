@@ -38,8 +38,13 @@ void AItemActor::BeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
 	ACoursUnrealCppCharacter* chara = Cast< ACoursUnrealCppCharacter>(OtherActor);
 	if (!chara)
 		return;
-	if(chara->AddItem(Data))
+	if (chara->AddItem(Data)) {
 		Destroy();
+		AMazeScriptLevel* level = Cast<AMazeScriptLevel>(GetLevel()->GetLevelScriptActor());
+		if (!level)
+			return;
+		level->AddItemSpawn(GetActorLocation());
+	}
 }
 
 AItemSpawn::AItemSpawn() {

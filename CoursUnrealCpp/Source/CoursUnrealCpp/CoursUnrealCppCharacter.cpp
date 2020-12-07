@@ -108,6 +108,20 @@ void ACoursUnrealCppCharacter::BeginPlay()
 	GetMesh()->GetAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &ACoursUnrealCppCharacter::NotifyBegin);
 }
 
+float ACoursUnrealCppCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(Damage,DamageEvent,EventInstigator,DamageCauser);
+	Health -= Damage;
+	if (Health <= 0)
+	{
+		ACoursUnrealCppGameMode* gameMode = Cast<ACoursUnrealCppGameMode>(GetWorld()->GetAuthGameMode());
+		if (gameMode)
+			gameMode->RespawnPlayer();
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::FromInt(Health));
+	return Damage;
+}
+
 void ACoursUnrealCppCharacter::OnResetVR()
 {
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();

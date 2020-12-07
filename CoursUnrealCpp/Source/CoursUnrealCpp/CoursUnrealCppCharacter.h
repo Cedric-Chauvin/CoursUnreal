@@ -48,6 +48,9 @@ class ACoursUnrealCppCharacter : public ACharacter
 public:
 	ACoursUnrealCppCharacter();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attack, meta = (AllowPrivateAccess = "true"))
+		float Health;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
@@ -58,6 +61,7 @@ public:
 
 	bool AddItem(struct FItemData* data);
 	virtual void BeginPlay() override;
+	float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 

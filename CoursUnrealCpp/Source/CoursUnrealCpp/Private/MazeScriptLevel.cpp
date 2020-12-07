@@ -10,6 +10,7 @@
 #include "Engine/DataTable.h"
 #include "TimerManager.h"
 #include "ItemActor.h"
+#include "../CoursUnrealCppCharacter.h"
 
 void AMazeScriptLevel::SpawnItem()
 {
@@ -22,6 +23,7 @@ void AMazeScriptLevel::SpawnItem()
 	random = FMath::RandRange(0, spawnLocations.Num() - 1);
 	AItemActor* item = GetWorld()->SpawnActor<AItemActor>(spawnActor, spawnLocations[random], FRotator(0));
 	item->Data = data;
+	spawnLocations.RemoveAt(random);
 }
 
 AMazeScriptLevel::AMazeScriptLevel() {
@@ -77,7 +79,7 @@ void AMazeScriptLevel::ChangeCurrentLVL(FName lvl)
 	currentLvl = lvl;
 }
 
-USaveTemplate* AMazeScriptLevel::SetupSave()
+void AMazeScriptLevel::Save()
 {
 	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("Slot0", 0);
 	if (!tempSave) 
@@ -87,19 +89,24 @@ USaveTemplate* AMazeScriptLevel::SetupSave()
 	save->saveTime = FDateTime::Now();
 	save->CurrentLevel = currentLvl;
 	save->saveIndex = saveIndex;
-	return save;
+	ACoursUnrealCppCharacter* chara = Cast<ACoursUnrealCppCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (chara)
+		save->saveHealth = chara->Health;
+
+	UGameplayStatics::SaveGameToSlot(save, "Slot" + FString::FromInt(saveIndex), 0);
 }
 
 void AMazeScriptLevel::LoadSave()
 {
-	if(!UGameplayStatics::DoesSaveGameExist("Slot0", 0))
+	FString string = "Slot" + FString::FromInt(saveIndex);
+	if(!UGameplayStatics::DoesSaveGameExist(string, 0))
 	{ 
 		currentLvl = FName("Spawn");
 		AddOrRemoveCompt(FName("Spawn"), true);
 		AddOrRemoveCompt(FName("Corridor1"), true);
 		return;
 	}
-	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot("Slot0", 0);
+	USaveGame* tempSave = UGameplayStatics::LoadGameFromSlot(string, 0);
 	if (tempSave) {
 		USaveTemplate* save = Cast<USaveTemplate>(tempSave);
 		saveIndex = save->saveIndex;
@@ -109,6 +116,13 @@ void AMazeScriptLevel::LoadSave()
 			currentLvl = FName("Spawn");
 			AddOrRemoveCompt(FName("Spawn"), true);
 			AddOrRemoveCompt(FName("Corridor1"), true);
+			AddOrRemoveCompt(FName("ShapeL"), true);
+			AddOrRemoveCompt(FName("SyncMap"), true);
+		}
+		if (save->saveHealth != 0)
+		{
+			ACoursUnrealCppCharacter* chara = Cast<ACoursUnrealCppCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+			chara->Health = save->saveHealth;
 		}
 	}
 }

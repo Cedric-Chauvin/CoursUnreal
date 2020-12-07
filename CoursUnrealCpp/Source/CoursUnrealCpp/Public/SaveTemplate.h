@@ -24,6 +24,9 @@ public :
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Save)
 		int saveIndex;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Save)
+		float saveHealth;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Save)
 		FName CurrentLevel;
 };

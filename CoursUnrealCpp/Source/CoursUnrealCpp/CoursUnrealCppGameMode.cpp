@@ -80,8 +80,8 @@ void ACoursUnrealCppGameMode::BeginPlay()
 	}
 }
 
-USaveTemplate* ACoursUnrealCppGameMode::SetupSave()
+void ACoursUnrealCppGameMode::Save()
 {
 	AMazeScriptLevel* level = Cast< AMazeScriptLevel>(GetLevel()->GetLevelScriptActor());
-	return level->SetupSave();
+	level->Save();
 }

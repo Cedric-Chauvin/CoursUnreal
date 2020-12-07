@@ -39,7 +39,7 @@ public :
 	void AddOrRemoveCompt(FName lvlName,bool add);
 	void ChangeCurrentLVL(FName lvl);
 
-	USaveTemplate* SetupSave();
+	void Save();
 	void LoadSave();
 
 	void AddItemSpawn(FVector location);

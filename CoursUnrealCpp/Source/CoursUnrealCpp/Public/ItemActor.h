@@ -24,7 +24,6 @@ public :
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		UTexture2D* Sprite;
-
 };
 
 UCLASS()
